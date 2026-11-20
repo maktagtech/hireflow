@@ -1,0 +1,19 @@
+Senior Backend Engineer
+Northwind Cloud
+
+About the role
+We're building the payments infrastructure for thousands of merchants.
+
+What you'll do
+• Design and operate scalable backend services for our payments platform
+• Own services end to end, from design through deployment on Kubernetes
+• Collaborate with product and participate in code review
+
+Requirements
+• 5+ years of backend engineering experience
+• Strong Python skills; experience with FastAPI or Django
+• Hands-on experience with AWS, Docker and Kubernetes
+• Infrastructure as code with Terraform
+• Experience building CI/CD pipelines
+• PostgreSQL and Redis in production
+• Payments platform or fintech experience is a plus

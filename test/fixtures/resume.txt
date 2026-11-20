@@ -1,0 +1,28 @@
+Jane Doe
+Backend Software Engineer
+jane.doe@example.com | +1 415 555 0134 | San Francisco, CA | linkedin.com/in/janedoe
+
+SUMMARY
+Backend engineer focused on reliable cloud services and developer tooling.
+
+EXPERIENCE
+Senior Software Engineer | Acme Payments Inc | Jan 2021 – Present
+• Built cloud solutions on AWS for the payments platform serving 2M users
+• Led migration of 14 services to Docker containers, cutting deploy time by 60%
+• Mentored 4 engineers and ran weekly code review sessions
+• Designed REST APIs in Python and FastAPI backed by postgres
+
+Software Engineer | Blue Labs | Jun 2017 – Dec 2020
+• Developed data pipelines in Python processing 500GB per day
+• Maintained CI/CD pipelines with GitHub Actions
+• Wrote unit tests with pytest, raising coverage from 40% to 85%
+
+EDUCATION
+B.S. in Computer Science, University of California, Berkeley | 2013 – 2017
+
+SKILLS
+Languages: Python, SQL, Bash
+Cloud & Tools: AWS, Docker, PostgreSQL, Redis, Git
+
+CERTIFICATIONS
+AWS Certified Solutions Architect – Associate
