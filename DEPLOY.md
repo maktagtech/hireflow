@@ -15,7 +15,7 @@ What runs where:
 
 1. vercel.com → **Add New → Project** → import `HireFlow`.
 2. Framework preset: **Next.js** (detected). Leave the build settings alone: `vercel.json` already runs the database migrations before each build.
-3. Open **Environment Variables** and add:
+3. Open **Environment Variables** and add these. Tick **Production** and **Preview** for each, not just Development, or the live site won't see them:
    | Name | Value |
    |---|---|
    | `SESSION_SECRET` | 48+ random characters. Generate with `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"` |
@@ -37,7 +37,7 @@ Already have a Neon account? Create a project at console.neon.tech, copy the **p
 Vercel's own disk is wiped between requests, so uploaded resumes and generated documents need Blob storage.
 
 1. **Storage → Create → Blob** → choose **Private** access (resumes are personal data) → **Connect** to this project for all environments.
-2. Vercel adds `BLOB_READ_WRITE_TOKEN` automatically.
+2. Vercel adds `BLOB_STORE_ID` (older stores: `BLOB_READ_WRITE_TOKEN`) automatically.
 
 Files are stored privately. Downloads go through `/api/applications/:id/download/:file`, which checks that the file belongs to the signed-in user.
 
@@ -50,6 +50,7 @@ Files are stored privately. Downloads go through `/api/applications/:id/download
 
 If something fails, open the deployment → **Logs**. The messages are explicit:
 - `No file storage configured` → step 3 is missing, or you didn't redeploy after it.
+- `ECONNREFUSED 127.0.0.1:5432` → `DATABASE_URL` isn't available to Production. Check its name and environments, then redeploy.
 - `SESSION_SECRET must be set` → add it in step 1, then redeploy.
 - Connection errors → check `DATABASE_URL` from step 2.
 
@@ -71,7 +72,7 @@ npm run dev               # http://localhost:3000
 
 This uses the **same** database as production. To keep test data separate, create a `dev` branch in the Neon console and put its connection string in `.env.local` as `DATABASE_URL`, then run `npm run db:migrate` once.
 
-Locally, files are saved to `.storage/` unless `BLOB_READ_WRITE_TOKEN` is in `.env.local` (`vercel env pull` adds it). Delete that line to keep local test files off Vercel Blob.
+Locally, files are saved to `.storage/` unless `BLOB_STORE_ID` or `BLOB_READ_WRITE_TOKEN` is in `.env.local` (`vercel env pull` can add them). Delete those lines to keep local test files off Vercel Blob.
 
 ## Limits to know
 

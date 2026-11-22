@@ -7,8 +7,8 @@ import { del as blobDel, get as blobGet, list as blobList, put as blobPut } from
 
 /**
  * Object storage for uploaded resumes and generated documents.
- * - Vercel Blob (private store) when BLOB_READ_WRITE_TOKEN is set — added by
- *   Vercel > Storage > Create > Blob.
+ * - Vercel Blob (private store) when BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN is set —
+ *   added by Vercel > Storage > Create > Blob.
  * - S3 when S3_BUCKET is set.
  * - Otherwise a local directory (development only; Vercel's disk is not persistent).
  * Keys are always scoped as `users/<userId>/...` so ownership is checkable.
@@ -136,7 +136,9 @@ export function getStorage(): Storage {
 
 function createStorage(): Storage {
   if (process.env.S3_BUCKET) return new S3Storage(process.env.S3_BUCKET);
-  if (process.env.BLOB_READ_WRITE_TOKEN) return new VercelBlobStorage();
+  // Newer Blob stores connect with BLOB_STORE_ID (the SDK signs in with Vercel's OIDC token);
+  // older ones with BLOB_READ_WRITE_TOKEN. Either works.
+  if (process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN) return new VercelBlobStorage();
   if (process.env.VERCEL) {
     throw new Error("No file storage configured. In Vercel, open Storage > Create > Blob, connect it to this project, then redeploy.");
   }
