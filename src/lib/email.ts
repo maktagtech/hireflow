@@ -56,6 +56,8 @@ function textToHtml(text: string) {
 export function appUrl(req?: Request): string {
   const configured = process.env.APP_URL?.replace(/\/$/, "");
   if (configured) return configured;
+  // On Vercel, fall back to the project's production domain (set by Vercel, not the request).
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   if (process.env.NODE_ENV === "production") throw new Error("APP_URL must be set in production");
   return req ? new URL(req.url).origin : "http://localhost:3000";
 }

@@ -77,8 +77,8 @@ export default function PrivacyPage() {
       <h2>Who we share data with</h2>
       <p>We share personal data only with service providers that help us run {site.name}, under contracts that limit their use of it:</p>
       <ul>
-        <li>Cloud hosting and database providers, which store and serve the application and your data.</li>
-        <li>File storage (for example Amazon Web Services S3), which stores uploaded and generated documents, encrypted at rest.</li>
+        <li>Cloud hosting and database providers (for example Vercel and Neon), which store and serve the application and your data.</li>
+        <li>File storage (for example Vercel Blob or Amazon Web Services S3), which stores uploaded and generated documents, encrypted at rest.</li>
         <li>AI model providers, as described above.</li>
         <li>An email delivery provider (for example Resend), to send password-reset and service emails.</li>
       </ul>

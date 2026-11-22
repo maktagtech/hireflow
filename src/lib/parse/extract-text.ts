@@ -1,7 +1,8 @@
 import "server-only";
 import { htmlToText } from "./html";
 
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+// Vercel rejects request bodies over 4.5 MB, so keep uploads under that.
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 export type UploadKind = "pdf" | "docx" | "txt";
 

@@ -3,10 +3,14 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { DeleteObjectsCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { del as blobDel, get as blobGet, list as blobList, put as blobPut } from "@vercel/blob";
 
 /**
  * Object storage for uploaded resumes and generated documents.
- * S3 when S3_BUCKET is set; otherwise a local directory (development).
+ * - Vercel Blob (private store) when BLOB_READ_WRITE_TOKEN is set — added by
+ *   Vercel > Storage > Create > Blob.
+ * - S3 when S3_BUCKET is set.
+ * - Otherwise a local directory (development only; Vercel's disk is not persistent).
  * Keys are always scoped as `users/<userId>/...` so ownership is checkable.
  */
 export interface Storage {
@@ -67,6 +71,36 @@ class S3Storage implements Storage {
   }
 }
 
+/**
+ * Vercel Blob, private access: files are only reachable with the store token,
+ * so downloads stream through the app after its ownership check.
+ */
+class VercelBlobStorage implements Storage {
+  async put(key: string, body: Uint8Array, contentType: string) {
+    await blobPut(key, Buffer.from(body), { access: "private", contentType, addRandomSuffix: false, allowOverwrite: true });
+  }
+  async get(key: string) {
+    const res = await blobGet(key, { access: "private", useCache: false });
+    if (!res || res.statusCode !== 200) throw new Error(`Stored file not found: ${key}`);
+    return Buffer.from(await new Response(res.stream).arrayBuffer());
+  }
+  async signedUrl() {
+    return null;
+  }
+  async delete(key: string) {
+    await blobDel(key);
+  }
+  async deletePrefix(prefix: string) {
+    assertScopedPrefix(prefix);
+    let cursor: string | undefined;
+    do {
+      const page = await blobList({ prefix, cursor, limit: 1000 });
+      if (page.blobs.length) await blobDel(page.blobs.map((b) => b.url));
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+  }
+}
+
 class LocalStorage implements Storage {
   constructor(private root: string) {}
   private resolve(key: string) {
@@ -96,8 +130,15 @@ class LocalStorage implements Storage {
 
 let instance: Storage | undefined;
 export function getStorage(): Storage {
-  instance ??= process.env.S3_BUCKET
-    ? new S3Storage(process.env.S3_BUCKET)
-    : new LocalStorage(path.resolve(/*turbopackIgnore: true*/ process.env.LOCAL_STORAGE_DIR || ".storage"));
+  instance ??= createStorage();
   return instance;
+}
+
+function createStorage(): Storage {
+  if (process.env.S3_BUCKET) return new S3Storage(process.env.S3_BUCKET);
+  if (process.env.BLOB_READ_WRITE_TOKEN) return new VercelBlobStorage();
+  if (process.env.VERCEL) {
+    throw new Error("No file storage configured. In Vercel, open Storage > Create > Blob, connect it to this project, then redeploy.");
+  }
+  return new LocalStorage(path.resolve(/*turbopackIgnore: true*/ process.env.LOCAL_STORAGE_DIR || ".storage"));
 }

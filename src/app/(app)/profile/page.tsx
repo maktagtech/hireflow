@@ -135,7 +135,7 @@ export default function ProfilePage() {
         ) : (
           <>
             <p className="font-medium text-slate-900">{profile ? "Replace with a new resume" : "Upload your master resume"}</p>
-            <p className="mt-1 text-sm text-slate-500">PDF, DOCX or LinkedIn PDF export · up to 10 MB</p>
+            <p className="mt-1 text-sm text-slate-500">PDF, DOCX or LinkedIn PDF export · up to 4 MB</p>
             <Button variant={profile ? "secondary" : "primary"} className="mt-4" onClick={() => fileRef.current?.click()}>
               Choose file
             </Button>

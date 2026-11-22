@@ -10,13 +10,19 @@
     "test": "vitest run",
     "typecheck": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node --env-file=.env.local ./node_modules/.bin/drizzle-kit migrate",
-    "invite": "tsx --conditions=react-server --env-file=.env.local scripts/invite.mts"
+    "db:migrate": "node scripts/migrate.mjs",
+    "invite": "tsx --conditions=react-server --env-file=.env.local scripts/invite.mts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.10.0",
     "@aws-sdk/client-s3": "^3.1172.0",
     "@aws-sdk/s3-request-presigner": "^3.1172.0",
+    "@neondatabase/serverless": "^1.2.1",
+    "@vercel/blob": "^2.9.0",
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.2.0",
     "docx": "^9.16.0",

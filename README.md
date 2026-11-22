@@ -11,15 +11,20 @@ Each application's outcome is tracked (applied → interview → offer), and the
 
 ## Quick start
 
-Requirements: Node 20+, PostgreSQL.
+Requirements: Node 22+ and a Postgres database: a free [Neon](https://neon.tech) database (recommended) or a local
+Postgres.
 
 ```bash
 npm install
-cp .env.example .env.local          # set DATABASE_URL and SESSION_SECRET
-createdb hireflow
-npm run db:migrate
-npm run dev                          # http://localhost:3000
+cp .env.example .env.local          # set DATABASE_URL (Neon connection string) and SESSION_SECRET
+npm run db:migrate                  # creates the tables
+npm run dev                         # http://localhost:3000
 ```
+
+Already deployed to Vercel? Use `vercel env pull .env.local` instead of copying `.env.example`.
+
+**Deploying:** see [DEPLOY.md](DEPLOY.md) for Vercel + Neon + Vercel Blob. Migrations run automatically on every
+Vercel build (`vercel.json`).
 
 The app runs end to end **without any AI key**, using a deterministic offline engine. To use an LLM, set one of
 `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY`. You can force a provider with `AI_PROVIDER` and a model
@@ -30,7 +35,9 @@ with `AI_MODEL`.
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm test` | Engine, parser, truth-guard and renderer tests (Vitest) |
 | `npm run typecheck` | Route type generation + `tsc` |
-| `npm run db:generate` / `db:migrate` | Drizzle migrations (`drizzle/`) |
+| `npm run db:generate` | Create a new migration in `drizzle/` after editing `src/db/schema.ts` |
+| `npm run db:migrate` | Apply migrations to `DATABASE_URL` (Neon or local Postgres) |
+| `npm run db:studio` | Browse the database (Drizzle Studio) |
 
 ## Private beta
 
@@ -82,7 +89,7 @@ src/lib/
     cover-letter.ts
   render/             Shared block model -> DOCX (docx) and PDF (pdf-lib); single-column ATS layout
   pipeline.ts         The one-click flow: import -> score -> tailor + letter -> render -> store
-  storage.ts          S3 (when S3_BUCKET is set) or local disk
+  storage.ts          Vercel Blob (private), S3, or local disk in development
 ```
 
 ### Key design decisions
@@ -103,7 +110,7 @@ src/lib/
 `users`, `profiles` (one JSONB master profile per user), `jobs` (description, parsed job, status for interview-rate
 tracking), and `generated_resumes` (version, storage keys for the 4 files, scores, tailoring, cover letter). The
 `*_url` columns store storage keys. Downloads go through `/api/applications/:id/download/:file`, which checks ownership,
-then either streams the file or redirects to a 5-minute presigned S3 URL.
+then either streams the file (Vercel Blob, local disk) or redirects to a 5-minute presigned S3 URL.
 
 ## Production notes
 

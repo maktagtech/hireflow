@@ -10,6 +10,9 @@ import { getStorage } from "@/lib/storage";
 
 const MIME = { pdf: "application/pdf", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", txt: "text/plain" };
 
+// AI calls can take a while; allow up to 2 minutes on Vercel.
+export const maxDuration = 120;
+
 /** Upload a master resume (PDF, DOCX or LinkedIn PDF export) and parse it into the profile. */
 export const POST = handler(async (req: Request) => {
   const user = await requireUser();
@@ -18,7 +21,7 @@ export const POST = handler(async (req: Request) => {
   const form = await req.formData();
   const file = form.get("file");
   if (!(file instanceof File)) throw new HttpError(400, "Choose a resume file to upload");
-  if (file.size > MAX_UPLOAD_BYTES) throw new HttpError(413, "File is too large (10 MB max)");
+  if (file.size > MAX_UPLOAD_BYTES) throw new HttpError(413, "File is too large (4 MB max)");
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const kind = detectKind(file.name, file.type, bytes);

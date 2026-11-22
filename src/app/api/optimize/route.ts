@@ -11,6 +11,9 @@ const Body = z
   })
   .refine((b) => b.url || b.text, "Paste a job URL or a job description");
 
+// AI calls can take a while; allow up to 2 minutes on Vercel.
+export const maxDuration = 120;
+
 /** One click: job in → tailored resume, cover letter, ATS score out. */
 export const POST = handler(async (req: Request) => {
   const user = await requireUser();
